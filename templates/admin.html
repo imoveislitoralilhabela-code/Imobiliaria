@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    body { background-color: #f4f6f9; font-family: 'Segoe UI', sans-serif; }
+    .admin-card { border: none; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); background: white; overflow: hidden; }
+    .admin-header { background: white; border-bottom: 1px solid #f0f0f0; padding: 25px 30px; }
+    .upload-box { background-color: #f9fbfd; border: 2px dashed #dde2e8; border-radius: 12px; padding: 20px; text-align: center; height: 100%; min-height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: all 0.2s; cursor: pointer; position: relative; }
+    .upload-box:hover { border-color: #0d6efd; background-color: #f0f7ff; }
+    .file-input-custom { opacity: 0; position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer; }
+    .file-count { font-size: 0.85rem; color: #198754; font-weight: 700; margin-top: 8px; display: none; background: #e8f5e9; padding: 2px 8px; border-radius: 4px; }
+    .table-leads thead th, .table-lugares thead th { background-color: #f8f9fa; color: #6c757d; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; border-bottom: 2px solid #e9ecef; }
+    .message-bubble { background-color: #f8f9fa; border-radius: 10px; padding: 10px 15px; font-size: 0.95rem; color: #495057; border-left: 4px solid #0d6efd; }
+    .btn-action { display: inline-flex; align-items: center; gap: 5px; font-weight: 500; font-size: 0.9rem; }
+    .form-control, .form-select, .form-control-lg { padding: 12px; border-radius: 10px; border: 1px solid #dee2e6; }
+</style>
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">Painel Administrativo</h2>
+            <p class="text-muted mb-0">Bem-vindo, {{ user }}.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/" class="btn btn-white border shadow-sm"><i class="bi bi-box-arrow-up-right me-2"></i>Ver Site</a>
+            <div class="dropdown">
+                <button class="btn btn-dark dropdown-toggle px-4" type="button" data-bs-toggle="dropdown">Admin</button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item text-danger" href="/logout"><i class="bi bi-box-arrow-right"></i> Sair</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <ul class="nav nav-pills mb-4 gap-3" id="pills-tab" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active fw-bold px-4 py-2 rounded-pill shadow-sm" data-bs-toggle="pill" data-bs-target="#pills-imoveis">
+                🏠 Gerenciar Imóveis
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link fw-bold px-4 py-2 rounded-pill shadow-sm" data-bs-toggle="pill" data-bs-target="#pills-lugares">
+                📍 Lugares & Guias
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link fw-bold px-4 py-2 rounded-pill shadow-sm" data-bs-toggle="pill" data-bs-target="#pills-site">
+                🖥 Capa do Site
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link fw-bold px-4 py-2 rounded-pill shadow-sm bg-warning text-dark position-relative" data-bs-toggle="pill" data-bs-target="#pills-msgs">
+                📩 Caixa de Entrada
+                {% if contatos %}
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light">
+                    {{ contatos|length }}
+                </span>
+                {% endif %}
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="pills-tabContent">
+        
+        <div class="tab-pane fade show active" id="pills-imoveis">
+            <form action="/admin/adicionar" method="post" enctype="multipart/form-data" class="mb-5">
+                <div class="row g-4">
+                    <div class="col-lg-5">
+                        <div class="admin-card h-100">
+                            <div class="admin-header"><h5 class="fw-bold mb-0 text-primary">📸 Fotos do Imóvel</h5></div>
+                            <div class="card-body p-4">
+                                <div class="alert alert-light border small mb-3 text-center">
+                                    <i class="bi bi-info-circle-fill text-primary"></i> Segure <strong>CTRL</strong> para selecionar várias fotos.
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-12"><div class="upload-box"><i class="bi bi-house fs-3 text-secondary mb-2"></i><label class="fw-bold small">Fachada Principal</label><span class="file-count" id="c1"></span><input type="file" name="fotos_fachada" class="file-input-custom" multiple onchange="updateCount(this, 'c1')"></div></div>
+                                    <div class="col-6"><div class="upload-box"><i class="bi bi-tv fs-4 text-secondary mb-1"></i><label class="fw-bold small">Sala</label><span class="file-count" id="c2"></span><input type="file" name="fotos_sala" class="file-input-custom" multiple onchange="updateCount(this, 'c2')"></div></div>
+                                    <div class="col-6"><div class="upload-box"><i class="bi bi-cup-hot fs-4 text-secondary mb-1"></i><label class="fw-bold small">Cozinha</label><span class="file-count" id="c3"></span><input type="file" name="fotos_cozinha" class="file-input-custom" multiple onchange="updateCount(this, 'c3')"></div></div>
+                                    <div class="col-6"><div class="upload-box"><i class="bi bi-lamp fs-4 text-secondary mb-1"></i><label class="fw-bold small">Quartos</label><span class="file-count" id="c4"></span><input type="file" name="fotos_quartos" class="file-input-custom" multiple onchange="updateCount(this, 'c4')"></div></div>
+                                    <div class="col-6"><div class="upload-box"><i class="bi bi-droplet fs-4 text-secondary mb-1"></i><label class="fw-bold small">Banheiros</label><span class="file-count" id="c5"></span><input type="file" name="fotos_banheiros" class="file-input-custom" multiple onchange="updateCount(this, 'c5')"></div></div>
+                                    <div class="col-6"><div class="upload-box"><i class="bi bi-water fs-4 text-secondary mb-1"></i><label class="fw-bold small">Lazer/Piscina</label><span class="file-count" id="c6"></span><input type="file" name="fotos_lazer" class="file-input-custom" multiple onchange="updateCount(this, 'c6')"></div></div>
+                                    <div class="col-6"><div class="upload-box"><i class="bi bi-car-front fs-4 text-secondary mb-1"></i><label class="fw-bold small">Garagem/Outros</label><span class="file-count" id="c7"></span><input type="file" name="fotos_outros" class="file-input-custom" multiple onchange="updateCount(this, 'c7')"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-7">
+                        <div class="admin-card">
+                            <div class="admin-header"><h5 class="fw-bold mb-0">📝 Detalhes do Imóvel</h5></div>
+                            <div class="card-body p-4">
+                                <div class="row g-3">
+                                    <div class="col-12"><label class="small fw-bold text-muted">Título do Anúncio</label><input type="text" name="titulo" class="form-control" required placeholder="Ex: Casa Alto Padrão em Ilhabela"></div>
+                                    <div class="col-md-6"><label class="small fw-bold text-muted">Preço (R$)</label><input type="text" name="preco" class="form-control" required placeholder="0,00"></div>
+                                    <div class="col-md-6"><label class="small fw-bold text-muted">Tipo</label><select name="tipo" class="form-select"><option>Venda</option><option>Aluguel</option></select></div>
+                                    
+                                    <div class="col-12">
+                                        <label class="small fw-bold text-muted">Lugar / Bairro</label>
+                                        <select name="lugar_id" class="form-select" required>
+                                            <option value="" disabled selected>Selecione a localização (necessário cadastrar primeiro na aba "Lugares")</option>
+                                            {% for lugar in lugares %}
+                                                <option value="{{ lugar.id }}">{{ lugar.nome }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    
+                                    <input type="hidden" name="bairro" value="">
+
+                                    <div class="col-4"><label class="small fw-bold text-muted">Quartos</label><input type="number" name="quartos" class="form-control" value="0"></div>
+                                    <div class="col-4"><label class="small fw-bold text-muted">Banhos</label><input type="number" name="banheiros" class="form-control" value="0"></div>
+                                    <div class="col-4"><label class="small fw-bold text-muted">Área (m²)</label><input type="number" name="area" class="form-control" value="0"></div>
+                                    <div class="col-12"><label class="small fw-bold text-muted">WhatsApp</label><input type="text" name="whatsapp" class="form-control" required placeholder="Somente números com DDD"></div>
+                                    <div class="col-12"><label class="small fw-bold text-muted">Descrição</label><textarea name="descricao" class="form-control" rows="5"></textarea></div>
+                                    <div class="col-12 mt-4"><button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill shadow">Salvar e Publicar</button></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="admin-card">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light"><tr><th class="ps-4">Capa</th><th>Imóvel</th><th>Lugar</th><th>Preço</th><th>Ações</th></tr></thead>
+                        <tbody>
+                            {% for imovel in imoveis %}
+                            <tr>
+                                <td class="ps-4">{% if imovel.lista_fotos %}<img src="{{ imovel.lista_fotos[0] }}" width="80" height="60" class="rounded" style="object-fit: cover;">{% else %}-{% endif %}</td>
+                                <td><div class="fw-bold">{{ imovel.titulo }}</div></td>
+                                <td><span class="badge bg-secondary">{{ imovel.bairro }}</span></td>
+                                <td class="fw-bold text-success">{{ imovel.preco }}</td>
+                                <td class="text-nowrap">
+                                    <a href="/admin/imovel/editar/{{ imovel.id }}" class="btn btn-sm btn-outline-primary px-3 rounded-pill me-2"><i class="bi bi-pencil"></i> Editar</a>
+                                    <a href="/admin/deletar/{{ imovel.id }}" class="btn btn-sm btn-outline-danger px-3 rounded-pill" onclick="return confirm('Apagar Imóvel?')">Excluir</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="pills-lugares">
+            <div class="row g-4">
+                <div class="col-lg-5">
+                    <div class="admin-card">
+                        <div class="admin-header"><h5 class="fw-bold mb-0 text-primary">➕ Cadastrar Novo Lugar</h5></div>
+                        <div class="card-body p-4">
+                            <form action="/admin/lugar/adicionar" method="post" enctype="multipart/form-data">
+                                
+                                <div class="mb-3"><label class="small fw-bold text-muted">Nome do Lugar (Ex: Praia da Enseada)</label><input type="text" name="nome" class="form-control" required></div>
+                                <div class="mb-3"><label class="small fw-bold text-muted">Descrição Básica</label><textarea name="descricao" class="form-control" rows="2"></textarea></div>
+                                
+                                <div class="mb-3">
+                                    <label class="small fw-bold text-muted">Imagem Principal (Para o Guia)</label>
+                                    <input type="file" name="file_imagem" class="form-control">
+                                </div>
+                                
+                                <div class="mb-3"><label class="small fw-bold text-muted">Bares/Restaurantes (Lista separada por linha)</label><textarea name="bares_restaurantes" class="form-control" rows="3" placeholder="Restaurante 1&#10;Bar 2&#10;..."></textarea></div>
+                                <div class="mb-4"><label class="small fw-bold text-muted">Pontos de Interesse/Lazer</label><textarea name="pontos_interesse" class="form-control" rows="3" placeholder="Pista de Skate&#10;Ciclovia da Orla&#10;..."></textarea></div>
+                                <button type="submit" class="btn btn-primary w-100 rounded-pill">Salvar Novo Lugar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-7">
+                    <div class="admin-card">
+                        <div class="admin-header"><h5 class="fw-bold mb-0 text-primary">📝 Lugares Ativos</h5></div>
+                        <div class="table-responsive">
+                            <table class="table table-lugares table-hover align-middle mb-0">
+                                <thead class="table-light"><tr><th>Capa</th><th>Nome</th><th>Imóveis</th><th>Ações</th></tr></thead>
+                                <tbody>
+                                    {% for lugar in lugares %}
+                                    <tr style="cursor: pointer;">
+                                        <td>{% if lugar.imagem_principal %}<img src="{{ lugar.imagem_principal }}" width="60" class="rounded" style="object-fit: cover;">{% else %}-{% endif %}</td>
+                                        <td class="fw-bold">{{ lugar.nome }}</td>
+                                        <td><span class="badge bg-info bg-opacity-10 text-info">{{ lugar.imoveis|length }}</span></td>
+                                        <td class="text-nowrap">
+                                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editLugarModal{{ lugar.id }}">Editar</button>
+                                            <a href="/admin/lugar/deletar/{{ lugar.id }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Apagar o lugar {{ lugar.nome }}?')">Excluir</a>
+                                        </td>
+                                    </tr>
+                                    
+                                    <div class="modal fade" id="editLugarModal{{ lugar.id }}" tabindex="-1">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <form action="/admin/lugar/editar/{{ lugar.id }}" method="post" enctype="multipart/form-data"> 
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Editar {{ lugar.nome }}</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="mb-3"><label class="form-label small fw-bold">Nome</label><input type="text" name="nome" class="form-control" value="{{ lugar.nome }}" required></div>
+                                                        <div class="mb-3"><label class="form-label small fw-bold">Descrição</label><textarea name="descricao" class="form-control" rows="2">{{ lugar.descricao }}</textarea></div>
+                                                        
+                                                        <div class="mb-3">
+                                                            <label class="form-label small fw-bold">Trocar Imagem (Opcional)</label>
+                                                            <input type="file" name="file_imagem" class="form-control">
+                                                            {% if lugar.imagem_principal %}<small class="text-muted">Imagem atual: <a href="{{ lugar.imagem_principal }}" target="_blank">Ver</a></small>{% endif %}
+                                                        </div>
+
+                                                        <div class="mb-3"><label class="form-label small fw-bold">Bares/Restaurantes</label><textarea name="bares_restaurantes" class="form-control" rows="3">{{ lugar.bares_restaurantes }}</textarea></div>
+                                                        <div class="mb-3"><label class="form-label small fw-bold">Pontos de Interesse</label><textarea name="pontos_interesse" class="form-control" rows="3">{{ lugar.pontos_interesse }}</textarea></div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                                                        <button type="submit" class="btn btn-success">Salvar Alterações</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="pills-site">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="admin-card p-5 text-center">
+                        <h4 class="fw-bold mb-4">Personalizar Capa</h4>
+                        <img src="{{ hero.imagem_capa }}" class="img-fluid rounded-4 mb-4 shadow border" style="max-height: 250px;">
+                        
+                        <form action="/admin/hero" method="post" enctype="multipart/form-data" class="text-start">
+                            
+                            <label class="small fw-bold text-muted mb-1">Trocar Imagem (Capa)</label>
+                            <input type="file" name="file_capa" class="form-control mb-3"> 
+                            
+                            <label class="small fw-bold text-muted mb-1">Título</label>
+                            <input type="text" name="titulo" class="form-control mb-3" value="{{ hero.titulo_capa }}">
+                            
+                            <label class="small fw-bold text-muted mb-1">Subtítulo</label>
+                            <input type="text" name="subtitulo" class="form-control mb-4" value="{{ hero.subtitulo_capa }}">
+                            
+                            <button type="submit" class="btn btn-success w-100 rounded-pill fw-bold py-2">Salvar Capa</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="pills-msgs">
+            <div class="admin-card">
+                <div class="admin-header"><h5 class="fw-bold mb-0 text-primary">📩 Caixa de Entrada</h5></div>
+                <div class="table-responsive">
+                    <table class="table table-leads table-hover align-middle mb-0">
+                        <thead class="table-light"><tr><th>Data</th><th>Cliente</th><th>Interesse em</th><th>Mensagem</th><th>Ação</th></tr></thead>
+                        <tbody>
+                            {% for contato in contatos %}
+                            <tr>
+                                <td>{{ contato.data_envio.strftime('%d/%m %H:%M') }}</td>
+                                <td>
+                                    <div class="fw-bold">{{ contato.nome }}</div>
+                                    <div class="small text-muted">{{ contato.email }}</div>
+                                    <div class="small text-success">{{ contato.telefone }}</div>
+                                </td>
+                                <td>Imóvel ID #{{ contato.imovel_id }}</td>
+                                <td><div class="message-bubble">{{ contato.mensagem }}</div></td>
+                                <td><a href="/admin/apagar_mensagem/{{ contato.id }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Apagar mensagem?')">Apagar</a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% if not contatos %}
+                <div class="p-4 text-center text-muted">Nenhuma mensagem nova.</div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Suas funções de JS aqui (truncate e updateCount)
+    String.prototype.truncate = function(length, useEllipsis) {
+        var str = this;
+        if (str.length > length) {
+            str = str.substring(0, length);
+            if (useEllipsis) {
+                str += '...';
+            }
+        }
+        return str;
+    };
+    
+    function updateCount(input, labelId) {
+        const count = input.files.length;
+        const label = document.getElementById(labelId);
+        if (count > 0) {
+            label.innerText = `${count} arquivos selecionados`;
+            label.style.display = 'block';
+        } else {
+            label.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}

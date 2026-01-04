@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* CSS CORRIGIDO PARA FOTOS DOS CARDS */
+    .card-img-top {
+        height: 250px;       /* Altura fixa */
+        width: 100%;         /* Largura total */
+        object-fit: cover;   /* Corta o excesso para não distorcer */
+        object-position: center;
+    }
+    
+    /* Animação ao rolar */
+    .fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+</style>
+
+<header class="hero-section mb-5" style="background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('{{ hero.imagem_capa }}'); background-size: cover; background-position: center; min-height: 500px; display: flex; align-items: center;">
+    <div class="container text-center text-white fade-in visible">
+        <h1 class="display-2 fw-bold text-shadow">{{ hero.titulo_capa }}</h1>
+        <p class="lead fs-3 mb-4 text-shadow">{{ hero.subtitulo_capa }}</p>
+        <a href="#imoveis" class="btn btn-light btn-lg rounded-pill px-5 fw-bold shadow">Ver Oportunidades</a>
+    </div>
+</header>
+
+<div class="container pb-5" id="imoveis">
+    <div class="row g-4">
+        {% for imovel in imoveis %}
+        <div class="col-md-4 fade-in">
+            <div class="card h-100 border-0 shadow-sm hover-lift overflow-hidden">
+                <div class="position-relative">
+                    {% if imovel.lista_fotos %}
+                        <img src="{{ imovel.lista_fotos[0] }}" class="card-img-top transition-zoom">
+                    {% else %}
+                        <img src="https://via.placeholder.com/400x250?text=Sem+Foto" class="card-img-top">
+                    {% endif %}
+                    
+                    <span class="badge bg-primary position-absolute top-0 end-0 m-3">{{ imovel.tipo }}</span>
+                </div>
+                <div class="card-body">
+                    <h5 class="fw-bold">{{ imovel.titulo }}</h5>
+                    <p class="small text-muted"><i class="bi bi-geo-alt"></i> {{ imovel.bairro }}</p>
+                    <h4 class="text-primary fw-bold">{{ imovel.preco }}</h4>
+                    <div class="d-flex justify-content-between border-top pt-3 text-muted small">
+                        <span>🛏 {{ imovel.quartos }}</span><span>🚿 {{ imovel.banheiros }}</span><span>📐 {{ imovel.area }}m²</span>
+                    </div>
+                </div>
+                <a href="/imovel/{{ imovel.id }}" class="stretched-link"></a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) entry.target.classList.add('visible');
+        });
+    });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+{% endblock %}

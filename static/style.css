@@ -1,0 +1,35 @@
+/*
+==================================================
+Estilos Personalizados - LitoralPrime
+==================================================
+*/
+
+/* 1. Efeito de Sombra e Levantamento ao passar o mouse (usado nos cards de imóveis) */
+.hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px); /* Move o elemento 5px para cima */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15) !important; /* Aumenta a sombra */
+}
+
+/* 2. Efeito de Zoom Suave para imagens dentro do card */
+.transition-zoom {
+    transition: transform 0.5s ease;
+}
+
+.hover-lift:hover .transition-zoom {
+    transform: scale(1.05); /* Zoom de 5% na imagem ao passar o mouse no card */
+}
+
+/* 3. Estilo para o Título e Subtítulo no Hero (dá mais destaque sobre o fundo) */
+.text-shadow {
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+/* 4. Estilo para o Rodapé */
+footer {
+    background-color: #f8f9fa; /* Cor de fundo cinza claro */
+    border-top: 1px solid #e9ecef;
+}

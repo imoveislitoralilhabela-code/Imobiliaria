@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* Estilos exclusivos desta página */
+    .place-carousel-img {
+        height: 400px;
+        object-fit: cover;
+        border-radius: 12px;
+    }
+    .icon-box {
+        width: 40px; height: 40px;
+        background: #f8f9fa; color: #0d6efd;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin-right: 15px; font-size: 1.2rem;
+    }
+    .guide-card {
+        border: none; border-radius: 12px;
+        background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        transition: transform 0.2s;
+        height: 100%;
+    }
+    .guide-card:hover { transform: translateY(-3px); }
+</style>
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold display-5 text-primary">Explore o Paraíso</h1>
+        <p class="lead text-muted">Acompanhe nossos guias e dicas dos melhores lugares.</p>
+    </div>
+
+    {% set enseada = lugares_data.get("Praia da Enseada") %}
+    {% set pereque = lugares_data.get("Praia do Perequê") %}
+
+    <ul class="nav nav-pills justify-content-center mb-5 gap-3" id="beachTab" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link {% if enseada %}active{% else %}disabled{% endif %} fs-5 px-5 py-2 rounded-pill shadow-sm" data-bs-toggle="pill" data-bs-target="#enseada">
+                🏖 Praia da Enseada
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link {% if pereque and not enseada %}active{% endif %} {% if pereque and enseada %} {% endif %} {% if not pereque %}disabled{% endif %} fs-5 px-5 py-2 rounded-pill shadow-sm" data-bs-toggle="pill" data-bs-target="#pereque">
+                ⛵ Praia do Perequê
+            </button>
+        </li>
+        {% if not enseada and not pereque %}
+        <li class="nav-item"><button class="nav-link disabled fw-bold">Nenhum lugar cadastrado. Use o Admin.</button></li>
+        {% endif %}
+    </ul>
+
+    <div class="tab-content" id="beachTabContent">
+        
+        <div class="tab-pane fade {% if enseada %}show active{% endif %}" id="enseada">
+            
+            {% if enseada %}
+            <div class="row g-4 mb-5">
+                <div class="col-lg-7">
+                    <div id="carouselEnseada" class="carousel slide shadow rounded-4 overflow-hidden" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            <div class="carousel-item active">
+                                <img src="{{ enseada.imagem_principal }}" class="d-block w-100 place-carousel-img" alt="{{ enseada.nome }}">
+                                <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded-3">
+                                    <h5>{{ enseada.nome }}</h5>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                </div>
+                <div class="col-lg-5">
+                    <iframe 
+                        src="https://maps.google.com/maps?q={{ enseada.nome|replace(' ', '+') }}, Brasil&z=12&output=embed" 
+                        width="100%" height="400" 
+                        style="border:0; border-radius: 12px;" 
+                        allowfullscreen="" loading="lazy" class="shadow">
+                    </iframe>
+                </div>
+            </div>
+
+            <p class="lead text-muted">{{ enseada.descricao }}</p>
+
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="guide-card p-4">
+                        <h4 class="fw-bold text-warning mb-4"><i class="bi bi-cup-straw me-2"></i>Bares e Restaurantes</h4>
+                        
+                        {% for item in enseada.bares_restaurantes.split('\n') %}
+                            {% if item|trim %}
+                                <div class="d-flex mb-3">
+                                    <div class="icon-box"><i class="bi bi-shop"></i></div>
+                                    <div>
+                                        <h6 class="fw-bold mb-1">{{ item|trim }}</h6>
+                                    </div>
+                                </div>
+                                {% if not loop.last %}<hr class="text-muted opacity-25">{% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="guide-card p-4">
+                        <h4 class="fw-bold text-success mb-4"><i class="bi bi-tree me-2"></i>O Que Fazer</h4>
+                        
+                        {% for item in enseada.pontos_interesse.split('\n') %}
+                            {% if item|trim %}
+                                <div class="d-flex mb-3">
+                                    <div class="icon-box text-success"><i class="bi bi-compass"></i></div>
+                                    <div>
+                                        <h6 class="fw-bold mb-1">{{ item|trim }}</h6>
+                                    </div>
+                                </div>
+                                {% if not loop.last %}<hr class="text-muted opacity-25">{% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-warning text-center">Dados da Praia da Enseada não cadastrados no painel administrativo.</div>
+            {% endif %}
+        </div>
+
+        <div class="tab-pane fade {% if pereque and not enseada %}show active{% endif %}" id="pereque">
+            
+            {% if pereque %}
+            <div class="row g-4 mb-5">
+                <div class="col-lg-7">
+                    <div id="carouselPereque" class="carousel slide shadow rounded-4 overflow-hidden" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            <div class="carousel-item active">
+                                <img src="{{ pereque.imagem_principal }}" class="d-block w-100 place-carousel-img" alt="{{ pereque.nome }}">
+                                <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded-3">
+                                    <h5>{{ pereque.nome }}</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <iframe 
+                        src="https://maps.google.com/maps?q={{ pereque.nome|replace(' ', '+') }}, Brasil&z=12&output=embed" 
+                        width="100%" height="400" 
+                        style="border:0; border-radius: 12px;" 
+                        allowfullscreen="" loading="lazy" class="shadow">
+                    </iframe>
+                </div>
+            </div>
+
+            <p class="lead text-muted">{{ pereque.descricao }}</p>
+
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="guide-card p-4">
+                        <h4 class="fw-bold text-warning mb-4"><i class="bi bi-star me-2"></i>Gastronomia Top</h4>
+                        
+                        {% for item in pereque.bares_restaurantes.split('\n') %}
+                            {% if item|trim %}
+                                <div class="d-flex mb-3">
+                                    <div class="icon-box"><i class="bi bi-suit-heart"></i></div>
+                                    <div>
+                                        <h6 class="fw-bold mb-1">{{ item|trim }}</h6>
+                                    </div>
+                                </div>
+                                {% if not loop.last %}<hr class="text-muted opacity-25">{% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="guide-card p-4">
+                        <h4 class="fw-bold text-success mb-4"><i class="bi bi-compass me-2"></i>Lazer e Aventura</h4>
+                        
+                        {% for item in pereque.pontos_interesse.split('\n') %}
+                            {% if item|trim %}
+                                <div class="d-flex mb-3">
+                                    <div class="icon-box text-success"><i class="bi bi-basket"></i></div>
+                                    <div>
+                                        <h6 class="fw-bold mb-1">{{ item|trim }}</h6>
+                                    </div>
+                                </div>
+                                {% if not loop.last %}<hr class="text-muted opacity-25">{% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-warning text-center">Dados da Praia do Perequê não cadastrados no painel administrativo.</div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
