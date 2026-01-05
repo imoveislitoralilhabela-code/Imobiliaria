@@ -2,6 +2,7 @@ annotated-doc==0.0.4
 annotated-types==0.7.0
 anyio==4.12.0
 bcrypt==5.0.0
+<<<<<<< HEAD
 cachetools==6.2.4
 certifi==2026.1.4
 cffi==2.0.0
@@ -32,20 +33,42 @@ packaging==25.0
 passlib==1.7.4
 postgrest==2.27.0
 propcache==0.4.1
+=======
+cffi==2.0.0
+click==8.3.1
+colorama==0.4.6
+cryptography==46.0.3
+ecdsa==0.19.1
+fastapi==0.128.0
+greenlet==3.3.0
+h11==0.16.0
+idna==3.11
+Jinja2==3.1.6
+jose==1.0.0
+jwt==1.4.0
+MarkupSafe==3.0.3
+numpy==2.4.0
+pandas==2.3.3
+passlib==1.7.4
+>>>>>>> c8168faf18203c5c6ab45de35744128d2d2a611a
 psycopg2-binary==2.9.11
 pyasn1==0.6.1
 pycparser==2.23
 pydantic==2.12.5
 pydantic_core==2.41.5
+<<<<<<< HEAD
 Pygments==2.19.2
 pyiceberg==0.10.0
 PyJWT==2.10.1
 pyparsing==3.3.1
 pyroaring==1.0.3
+=======
+>>>>>>> c8168faf18203c5c6ab45de35744128d2d2a611a
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.1
 python-jose==3.5.0
 python-multipart==0.0.21
+<<<<<<< HEAD
 PyYAML==6.0.3
 realtime==2.27.0
 requests==2.32.5
@@ -69,3 +92,17 @@ uvicorn==0.40.0
 watchfiles==1.1.1
 websockets==15.0.1
 yarl==1.22.0
+=======
+pytz==2025.2
+rsa==4.9.1
+requests==2.32.3
+six==1.17.0
+SQLAlchemy==2.0.45
+starlette==0.50.0
+typing-inspection==0.4.2
+typing_extensions==4.15.0
+tzdata==2025.3
+uvicorn==0.40.0
+uvicorn[standard]==0.40.0
+watchfiles==0.19.0  
+>>>>>>> c8168faf18203c5c6ab45de35744128d2d2a611a

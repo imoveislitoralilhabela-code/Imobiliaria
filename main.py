@@ -687,3 +687,6 @@ Imóvel: {contato.imovel_titulo} (ID {contato.imovel_id})
     except Exception as e:
         print("❌ ERRO ao enviar resposta:", repr(e))
         return RedirectResponse("/admin?reply=err", status_code=status.HTTP_303_SEE_OTHER)
+# =========================================================================
+# FIM
+# =========================================================================
