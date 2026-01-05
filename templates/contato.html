@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contato</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f0f2f5; display: flex; align-items: center; min-height: 100vh; }
+        .box { background: white; max-width: 500px; margin: auto; padding: 30px; border-radius: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="box">
+            <a href="/" class="text-decoration-none">⬅ Voltar</a>
+            
+            {% if imovel %}
+                <hr>
+                <h4 class="mb-3">Interesse em: <br><small class="text-primary">{{ imovel.titulo }}</small></h4>
+                
+                {% if sucesso %}
+                    <div class="alert alert-success text-center">
+                        <h5>✅ Enviado com Sucesso!</h5>
+                        <p>Olá <strong>{{ nome_cliente }}</strong>, recebemos seus dados. Logo entraremos em contato.</p>
+                        <a href="/" class="btn btn-success btn-sm mt-2">Ver mais imóveis</a>
+                    </div>
+                {% else %}
+                    <form action="/contato/{{ imovel.id }}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Seu Nome</label>
+                            <input type="text" name="nome" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Seu Telefone / WhatsApp</label>
+                            <input type="text" name="email" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mensagem</label>
+                            <textarea name="mensagem" class="form-control" rows="3">Gostaria de mais informações sobre este imóvel.</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-dark w-100">Enviar para o Vendedor</button>
+                    </form>
+                {% endif %}
+
+            {% else %}
+                <p class="text-danger">Imóvel não encontrado.</p>
+            {% endif %}
+        </div>
+    </div>
+
+</body>
+</html>

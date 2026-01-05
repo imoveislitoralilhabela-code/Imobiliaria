@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - LitoralPrime</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%); height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .card-login { border: none; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); overflow: hidden; width: 100%; max-width: 400px; }
+        .card-header { background: white; border-bottom: none; padding-top: 30px; text-align: center; }
+        .btn-login { background: #0d6efd; border: none; padding: 12px; font-weight: bold; font-size: 1.1rem; transition: 0.3s; }
+        .btn-login:hover { background: #0b5ed7; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+    <div class="card card-login">
+        <div class="card-header">
+            <h3 class="fw-bold text-primary mb-0">Litoral<span class="text-dark">Prime</span></h3>
+            <p class="text-muted small">Área Administrativa</p>
+        </div>
+        <div class="card-body p-4">
+            
+            {% if error %} 
+            <div class="alert alert-danger text-center py-2 mb-3 small">
+                {{ error }} 
+            </div>
+            {% endif %}
+
+            <form action="/login" method="post">
+                <div class="mb-3">
+                    <label class="form-label text-muted small fw-bold">Usuário</label>
+                    <input type="text" name="username" class="form-control form-control-lg" required>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-muted small fw-bold">Senha</label>
+                    <input type="password" name="password" class="form-control form-control-lg" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 btn-login rounded-pill shadow">Entrar</button>
+            </form>
+        </div>
+        <div class="card-footer bg-light text-center py-3">
+            <small class="text-muted"><a href="/" class="text-decoration-none">Voltar ao Site</a></small>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* Estilo do Carrossel */
+    .carousel-item {
+        height: 500px; /* Altura fixa para manter o layout */
+        background-color: #000; /* Fundo preto para destaque */
+        cursor: zoom-in; /* Ícone de lupa ao passar o mouse */
+    }
+
+    .carousel-img-fit {
+        height: 100%;
+        width: 100%;
+        object-fit: contain; /* Mostra a imagem inteira sem cortes */
+    }
+
+    /* Estilo do Modal (Tela Cheia) */
+    .modal-fullscreen-custom {
+        max-width: 95vw; /* Quase a largura toda da tela */
+    }
+
+    .modal-body {
+        padding: 0;
+        background-color: black;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 85vh;
+    }
+
+    .modal-img-full {
+        max-height: 100%;
+        max-width: 100%;
+    }
+</style>
+
+<div class="container py-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active">{{ imovel.titulo }}</li>
+        </ol>
+    </nav>
+
+    {# ✅ Sucesso do envio (rota do main.py usa ?ok=1&nome=...) #}
+    {% if sucesso_contato %}
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <strong>Mensagem enviada com sucesso!</strong>
+        {% if nome_cliente %} Obrigado, {{ nome_cliente }}.{% endif %}
+        Enviamos uma confirmação para seu e-mail e retornaremos em breve.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+
+    {# ✅ (Opcional) Se quiser usar depois ?sent=1 #}
+    {% if request.query_params.get('sent') == '1' %}
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <strong>Mensagem enviada com sucesso!</strong> Enviamos uma confirmação para seu e-mail.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <!-- COLUNA ESQUERDA -->
+        <div class="col-lg-8 mb-4">
+
+            {% if imovel.lista_fotos %}
+            <div id="carouselImovel" class="carousel slide shadow rounded overflow-hidden" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    {% for foto in imovel.lista_fotos %}
+                    <div class="carousel-item {{ 'active' if loop.index == 1 else '' }}" onclick="openModal('{{ foto }}')">
+                        <img src="{{ foto }}" class="d-block w-100 carousel-img-fit">
+                        <div class="carousel-caption d-none d-md-block">
+                            <span class="badge bg-dark bg-opacity-50">
+                                <i class="bi bi-zoom-in"></i> Clique para ampliar
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselImovel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselImovel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                </button>
+            </div>
+            {% else %}
+                <div class="alert alert-warning">Sem fotos cadastradas.</div>
+            {% endif %}
+
+            <div class="mt-4 bg-white p-4 rounded shadow-sm">
+                <h3 class="fw-bold mb-3">Sobre o Imóvel</h3>
+                <p class="lead text-secondary" style="white-space: pre-line;">{{ imovel.descricao }}</p>
+
+                <hr>
+
+                <h5 class="fw-bold mb-3">Características</h5>
+                <div class="row text-center g-3">
+                    <div class="col-md-3 col-6">
+                        <div class="p-3 border rounded bg-light">
+                            <i class="bi bi-door-closed fs-3 text-primary"></i><br>
+                            {{ imovel.quartos }} Quartos
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="p-3 border rounded bg-light">
+                            <i class="bi bi-droplet fs-3 text-primary"></i><br>
+                            {{ imovel.banheiros }} Banhos
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="p-3 border rounded bg-light">
+                            <i class="bi bi-aspect-ratio fs-3 text-primary"></i><br>
+                            {{ imovel.area }}m²
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="p-3 border rounded bg-light">
+                            <i class="bi bi-geo-alt fs-3 text-primary"></i><br>
+                            {{ imovel.bairro }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# ✅ Guia do Lugar (se você estiver passando "lugar_guia" pelo backend) #}
+            {% if lugar_guia %}
+            <div class="mt-4 bg-white p-4 rounded shadow-sm">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <h4 class="fw-bold mb-0">📍 Guia do Lugar: {{ lugar_guia.nome }}</h4>
+                    {% if lugar_guia.imagem_principal %}
+                        <a href="{{ lugar_guia.imagem_principal }}" target="_blank" class="small text-decoration-none">
+                            Ver imagem do guia
+                        </a>
+                    {% endif %}
+                </div>
+
+                {% if lugar_guia.descricao %}
+                <p class="text-secondary mt-3 mb-3" style="white-space: pre-line;">{{ lugar_guia.descricao }}</p>
+                {% endif %}
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded bg-light h-100">
+                            <div class="fw-bold mb-2">🍽️ Bares & Restaurantes</div>
+                            {% if lugar_guia.bares_restaurantes %}
+                                <div class="small text-secondary" style="white-space: pre-line;">{{ lugar_guia.bares_restaurantes }}</div>
+                            {% else %}
+                                <div class="small text-muted">Não informado.</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded bg-light h-100">
+                            <div class="fw-bold mb-2">🎯 Pontos de Interesse</div>
+                            {% if lugar_guia.pontos_interesse %}
+                                <div class="small text-secondary" style="white-space: pre-line;">{{ lugar_guia.pontos_interesse }}</div>
+                            {% else %}
+                                <div class="small text-muted">Não informado.</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- COLUNA DIREITA -->
+        <div class="col-lg-4">
+            <div class="card shadow border-0 p-4 sticky-top" style="top: 90px;">
+                <span class="badge bg-success w-25 mb-2">{{ imovel.tipo }}</span>
+                <h2 class="text-primary fw-bold">{{ imovel.preco }}</h2>
+                <h5 class="fw-bold">{{ imovel.titulo }}</h5>
+                <p class="text-muted small mb-4">{{ imovel.bairro }}</p>
+
+                <form action="/contato/enviar" method="post" class="mt-2">
+                    <input type="hidden" name="imovel_id" value="{{ imovel.id }}">
+
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold text-muted">Seu Nome</label>
+                        <input type="text" name="nome" class="form-control" required>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold text-muted">E-mail</label>
+                        <input type="email" name="email" class="form-control" required>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold text-muted">Telefone / WhatsApp</label>
+                        <input type="text" name="telefone" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Mensagem</label>
+                        <textarea name="mensagem" class="form-control" rows="3">Olá, tenho interesse neste imóvel.</textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 fw-bold py-2 mb-2">
+                        Enviar Proposta
+                    </button>
+
+                    {# ✅ WhatsApp com link pronto e mensagem automática #}
+                    {% if whatsapp_link %}
+                    <a href="{{ whatsapp_link }}" target="_blank" class="btn btn-outline-success w-100 fw-bold py-2">
+                        <i class="bi bi-whatsapp"></i> Chamar no WhatsApp
+                    </a>
+                    {% else %}
+                    <a href="https://wa.me/{{ imovel.whatsapp }}" target="_blank" class="btn btn-outline-success w-100 fw-bold py-2">
+                        <i class="bi bi-whatsapp"></i> Chamar no WhatsApp
+                    </a>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL FULLSCREEN -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-fullscreen-custom">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-header border-0">
+                <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <img src="" id="modalImage" class="modal-img-full">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Função para abrir o modal com a imagem clicada
+    function openModal(imageSrc) {
+        var myModal = new bootstrap.Modal(document.getElementById('imageModal'));
+        document.getElementById('modalImage').src = imageSrc;
+        myModal.show();
+    }
+</script>
+{% endblock %}
